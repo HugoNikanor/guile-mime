@@ -1,0 +1,35 @@
+* Guile Mime
+  
+This is a simple library for parsing and handling Mime types
+in guile. It exports one function, ~get-mime-hash-table~.
+The function takes one optional argument, which is the path
+to the Mime file, and defaults to =/etc/mime.types=.
+It returns a hash-table of all types in the file.
+
+** Example
+
+#+BEGIN_SRC guile
+(use-modules (ice-9 hash-table)
+             (mime))
+
+(define mime (get-mime-hash-table))
+
+(hash-ref mime "html")
+$1 = "text/html"
+(hash-ref mime "htm")
+$1 = "text/html"
+(hash-ref mime "rss")
+$1 = "application/rss+xml"
+#+END_SRC
+   
+** Dependencies
+   
+The library depends on my guile modules, which can be found
+[[https:github.com/HugoNikanor/guile-lib][at GitHub]]. It's only the arrow macro I use, but I didn't feel
+like including it in this repo also.
+
+** Bugs
+
+The parsing of the Mime file might be slightly wrong,
+the document specifying valid Mime types was way to long.
+But it does parse the Mime file on my system correctly.
