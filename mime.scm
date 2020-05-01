@@ -9,20 +9,30 @@
   #:use-module (srfi srfi-26)
   #:use-module (srfi srfi-41)
   #:use-module ((rnrs io ports) #:select (port-eof?))
-  ;; This is one of my libraries, make sure it's in
-  ;; the load path before loading this module.
-  #:use-module (macros arrow)
 
-  #:export (get-mime-hash-table))
+  #:export (build-mime-table mime-table mimetype))
 
-(define* (get-mime-hash-table
-          #:optional (file-path "/etc/mime.types"))
+(define-syntax ->>
+  (syntax-rules ()
+    ((->> obj)
+     obj)
+    ((->> obj (func args ...) rest ...)
+     (->> (func args ... obj) rest ...))
+    ((->> obj func rest ...)
+     (->> (func obj) rest ...))))
+
+(define (build-mime-table file-path)
   (->> file-path
        open-input-file
        port->line-stream
        (stream-remove comment/empty?)
        (stream-map parse-line)
        (stream-fold into-hash! (make-hash-table 400))))
+
+(define mime-table (make-parameter (build-mime-table "/etc/mime.types")))
+
+(define (mimetype extension)
+  (hash-ref (mime-table) extension))
 
 (define (port->line-stream port)
   "A stream promising to return the contents of port as string,
